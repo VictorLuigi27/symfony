@@ -3,3 +3,9 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+    
+# config/routes.yaml
+api_games:
+    path: /api/games
+    controller: App\Controller\GameController::index
+    methods: GET
