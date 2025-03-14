@@ -47,7 +47,7 @@ final class GameController extends AbstractController
         $game = new Game();
         $game->setTitle($data['title']);
         $game->setDescription($data['description']);
-        $game->setPicture($data['picture']);  // Ajouter l'image
+        $game->setPicture($data['picture']);  
 
         $entityManager->persist($game);
         $entityManager->flush();
@@ -58,9 +58,9 @@ final class GameController extends AbstractController
                 'id' => $game->getId(),
                 'title' => $game->getTitle(),
                 'description' => $game->getDescription(),
-                'picture' => $game->getPicture(),  // Ajouter l'image dans la réponse
+                'picture' => $game->getPicture(),  
             ]
-        ], 201);  // Code 201 pour une création réussie
+        ], 201);  
     }
 
     // Afficher un jeu spécifique
