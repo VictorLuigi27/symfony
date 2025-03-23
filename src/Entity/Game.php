@@ -26,22 +26,15 @@ class Game
     private ?string $picture = null;
 
     /**
-     * @var Collection<int, self>
+     * @var Collection<int, Category>
      */
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'games')]
     #[ORM\JoinTable(name: 'game_category')]
     private Collection $categories;
 
-    /**
-     * @var Collection<int, Category>
-     */
-    #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'games')]
-    private Collection $gameCategories;
-
     public function __construct()
     {
         $this->categories = new ArrayCollection();
-        $this->gameCategories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -83,14 +76,14 @@ class Game
     }
 
     /**
-     * @return Collection<int, self>
+     * @return Collection<int, Category>
      */
     public function getCategories(): Collection
     {
         return $this->categories;
     }
 
-    public function addCategory(self $category): static
+    public function addCategory(Category $category): static
     {
         if (!$this->categories->contains($category)) {
             $this->categories->add($category);
@@ -98,34 +91,10 @@ class Game
         return $this;
     }
 
-    public function removeCategory(self $category): static
+    public function removeCategory(Category $category): static
     {
         $this->categories->removeElement($category);
         return $this;
     }
-
-    /**
-     * @return Collection<int, Category>
-     */
-    public function getGameCategories(): Collection
-    {
-        return $this->gameCategories;
-    }
-
-    public function addGameCategory(Category $gameCategory): static
-    {
-        if (!$this->gameCategories->contains($gameCategory)) {
-            $this->gameCategories->add($gameCategory);
-            $gameCategory->addGame($this);
-        }
-        return $this;
-    }
-
-    public function removeGameCategory(Category $gameCategory): static
-    {
-        if ($this->gameCategories->removeElement($gameCategory)) {
-            $gameCategory->removeGame($this);
-        }
-        return $this;
-    }
 }
+
