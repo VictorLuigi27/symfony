@@ -25,9 +25,10 @@ class Game
     #[ORM\Column(length: 255)]
     private ?string $picture = null;
 
-    /**
+        /**
      * @var Collection<int, Category>
      */
+        
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'games')]
     #[ORM\JoinTable(name: 'game_category')]
     private Collection $categories;

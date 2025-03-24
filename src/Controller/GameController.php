@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 #[Route('/game')]
 final class GameController extends AbstractController
@@ -40,29 +41,30 @@ final class GameController extends AbstractController
         return new JsonResponse($gamesData);  // Retourner les données au format JSON
     }
 
-
-    // Créer un nouveau jeu
-    #[Route('/new', name: 'app_game_new', methods: ['POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    // Créer un nouveau jeu sans catégories
+    #[Route('/new', name: 'new', methods: ['POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
-        // Vérifier que toutes les informations nécessaires sont présentes
-        if (!isset($data['title'], $data['description'], $data['picture'], $data['categories'])) {
+        // Vérification des champs obligatoires
+        if (empty($data['title']) || empty($data['description']) || empty($data['picture'])) {
             return new JsonResponse(['error' => 'Missing required fields'], 400);
         }
 
-        $game = new Game();
-        $game->setTitle($data['title']);
-        $game->setDescription($data['description']);
-        $game->setPicture($data['picture']);  
-
-        
-        $categories = $entityManager->getRepository(Category::class)->findBy(['id' => $data['categories']]);
-        foreach ($categories as $category) {
-            $game->addCategory($category); // Assumer que addCategory() existe
+        // Vérification de l'URL de l'image
+        $imageUrl = $data['picture'];
+        if (!filter_var($imageUrl, FILTER_VALIDATE_URL)) {
+            return new JsonResponse(['error' => 'Invalid image URL'], 400);
         }
 
+        // Création du jeu
+        $game = new Game();
+        $game->setTitle($data['title'])
+            ->setDescription($data['description'])
+            ->setPicture($imageUrl);
+
+        // Sauvegarde en base de données
         $entityManager->persist($game);
         $entityManager->flush();
 
@@ -72,14 +74,10 @@ final class GameController extends AbstractController
                 'id' => $game->getId(),
                 'title' => $game->getTitle(),
                 'description' => $game->getDescription(),
-                'picture' => $game->getPicture(),
-                'categories' => array_map(function($category) {
-                    return $category->getName();
-                }, $game->getCategories()->toArray()), // Retourner les catégories associées
+                'picture' => $game->getPicture()
             ]
-        ], 201);  
+        ], 201);
     }
-
 
     // Afficher un jeu spécifique
     #[Route('/{id}', name: 'app_game_show', methods: ['GET'])]
