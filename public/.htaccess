@@ -1,0 +1,15 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Si le fichier ou dossier existe, ne rien faire
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Sinon rediriger vers index.php
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    # Si mod_rewrite est désactivé, renvoyer une erreur 500
+    ErrorDocument 500 "Le module mod_rewrite est nécessaire pour cette application."
+</IfModule>
